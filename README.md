@@ -1,2 +1,6 @@
 # shopping-list
-Me getting familiar with GraphQL
+
+```
+yarn install
+yarn start
+```

@@ -1,0 +1,29 @@
+type Item {
+  id: ID!
+  name: String!
+  price: Int!
+  quantity: Int!
+  purchased: Boolean!
+}
+
+input ItemInput {
+  name: String!
+  price: Int!
+  quantity: Int!
+  purchased: Boolean!
+}
+
+type RootQuery {
+  item(id: ID!): Item
+  items: [Item!]!
+}
+
+type RootMutation {
+  createItem(input: ItemInput): Item
+  deleteItem(id: ID!): Boolean
+}
+
+schema {
+  query: RootQuery
+  mutation: RootMutation
+}

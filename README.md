@@ -40,7 +40,7 @@ query {
 ```
 mutation {
   createItem(input: {name: "First", price: 1, quantity: 1, purchased: false}) {
-    id,
+    id
     name
   }
 }

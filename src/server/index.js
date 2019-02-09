@@ -1,32 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const expressGraphql = require('express-graphql');
+const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 const fs = require('fs');
+
 const db = require('./db');
+const resolvers = require('./resolvers');
 
 const schema = buildSchema(
   fs.readFileSync(`${__dirname}/schema/schema.graphql`).toString()
 );
-
-function handleGraphql() {
-  return expressGraphql({
-    graphiql: true,
-    schema,
-
-    // Resolvers
-    rootValue: {
-      // Queries
-      item: async ({ id }) => await db.getItem(id),
-      items: async () => await db.getItems(),
-
-      // Mutations
-      createItem: async ({ input }) => await db.createItem(input),
-      updateItem: async ({ id, input }) => await db.updateItem(id, input),
-      deleteItem: async ({ id }) => await db.deleteItem(id)
-    }
-  });
-}
 
 async function main() {
   try {
@@ -39,7 +22,14 @@ async function main() {
 
   const app = express();
   app.use(bodyParser.json());
-  app.use('/graphql', handleGraphql());
+  app.use(
+    '/graphql',
+    graphqlHTTP({
+      schema,
+      rootValue: resolvers,
+      graphiql: true
+    })
+  );
   app.listen(8888);
 }
 

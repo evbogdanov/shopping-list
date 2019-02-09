@@ -30,6 +30,7 @@ const Item = props => {
       {({ loading, error, data }) => {
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error</p>;
+        if (!data.item) return <p>No such item</p>;
         return <ItemDetails {...data.item} />;
       }}
     </Query>

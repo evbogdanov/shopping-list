@@ -7,19 +7,37 @@ const app = express();
 
 app.use(bodyParser.json());
 
+// Temporary solution for storing items. Later I'll switch to SQL
+const ITEMS = [];
+let ID = 1;
+
 app.use(
   '/graphql',
   expressGraphql({
     graphiql: true,
+
     schema: buildSchema(`
+      type Item {
+        id: ID!
+        name: String!
+        price: Int!
+        quantity: Int!
+        purchased: Boolean!
+      }
+
+      input ItemInput {
+        name: String!
+        price: Int!
+        quantity: Int!
+        purchased: Boolean!
+      }
+
       type RootQuery {
-        # Returns a list of all items in my shopping list
-        # TODO: make it Item type
-        items: [String!]!
+        items: [Item!]!
       }
 
       type RootMutation {
-        createItem(name: String): String
+        createItem(input: ItemInput): Item
       }
 
       schema {
@@ -27,17 +45,75 @@ app.use(
         mutation: RootMutation
       }
     `),
+
     // Resolvers
     rootValue: {
       items: () => {
-        return ['one', 'two', 'three'];
+        return ITEMS;
       },
-      createItem: args => {
-        const itemName = args.name;
-        return itemName;
+      createItem: ({ input }) => {
+        const item = {
+          id: ID++,
+          ...input
+        };
+        ITEMS.push(item);
+        return item;
       }
     }
   })
 );
 
 app.listen(8888);
+
+////////////////////////////////////////////////////////////////////////////////
+// query {
+//   items {
+//     id
+//     name
+//     price
+//     quantity
+//     purchased
+//   }
+// }
+////////////////////////////////////////////////////////////////////////////////
+// {
+//   "data": {
+//     "items": [
+//       {
+//         "id": "1",
+//         "name": "First",
+//         "price": 1,
+//         "quantity": 1,
+//         "purchased": false
+//       },
+//       {
+//         "id": "2",
+//         "name": "Second",
+//         "price": 2,
+//         "quantity": 2,
+//         "purchased": false
+//       },
+//     ]
+//   }
+// }
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// mutation {
+//   createItem(input: {name: "First", price: 1, quantity: 1, purchased: false}) {
+//     id
+//     name
+//     price
+//   }
+// }
+////////////////////////////////////////////////////////////////////////////////
+// {
+//   "data": {
+//     "createItem": {
+//       "id": "1",
+//       "name": "First",
+//       "price": 1
+//     }
+//   }
+// }
+////////////////////////////////////////////////////////////////////////////////

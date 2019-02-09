@@ -20,6 +20,7 @@ type RootQuery {
 
 type RootMutation {
   createItem(input: ItemInput): Item
+  updateItem(id: ID!, input: ItemInput): Item
   deleteItem(id: ID!): Boolean
 }
 

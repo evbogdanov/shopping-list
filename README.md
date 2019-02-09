@@ -46,6 +46,18 @@ mutation {
 }
 ```
 
+### Update item
+
+```
+mutation {
+  updateItem(id: 1, input: {name: "Updated", price: 1, quantity: 1, purchased: true}) {
+    id
+    name
+    purchased
+  }
+}
+```
+
 ### Delete item
 ```
 mutation {

@@ -53,7 +53,6 @@ const getItems = () => {
 
 const createItem = ({ name, price, quantity, purchased }) => {
   const purchasedInt = purchased ? 1 : 0;
-
   const sql = `INSERT INTO items (name, price, quantity, purchased)
                VALUES ($1, $2, $3, $4)`;
   return new Promise((resolve, reject) => {
@@ -61,6 +60,25 @@ const createItem = ({ name, price, quantity, purchased }) => {
       if (err) return reject(err);
       return resolve({
         id: this.lastID,
+        name,
+        price,
+        quantity,
+        purchased
+      });
+    });
+  });
+};
+
+const updateItem = (id, { name, price, quantity, purchased }) => {
+  const purchasedInt = purchased ? 1 : 0;
+  const sql = `UPDATE items
+               SET (name, price, quantity, purchased) = ($1, $2, $3, $4)
+               WHERE id = $5`;
+  return new Promise((resolve, reject) => {
+    db.run(sql, [name, price, quantity, purchasedInt, id], function(err) {
+      if (err) return reject(err);
+      return resolve({
+        id,
         name,
         price,
         quantity,
@@ -89,5 +107,6 @@ module.exports = {
   getItem,
   getItems,
   createItem,
+  updateItem,
   deleteItem
 };

@@ -22,6 +22,7 @@ function handleGraphql() {
 
       // Mutations
       createItem: async ({ input }) => await db.createItem(input),
+      updateItem: async ({ id, input }) => await db.updateItem(id, input),
       deleteItem: async ({ id }) => await db.deleteItem(id)
     }
   });

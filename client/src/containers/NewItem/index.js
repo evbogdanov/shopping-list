@@ -37,15 +37,12 @@ class Form extends Component {
     purchased: false
   };
 
-  handleChange = event => {
-    const key = event.target.name;
-    if (key === 'purchased') {
-      this.setState(prevState => ({ purchased: !prevState.purchased }));
-    } else {
-      let value = event.target.value;
-      if (key === 'price' || key === 'quantity') value = parseInt(value, 10);
-      this.setState({ [key]: value });
-    }
+  handleChange = ({ target: { name, value, checked } }) => {
+    let nextValue = value;
+    if (name === 'purchased') nextValue = checked;
+    if (name === 'price' || name === 'quantity')
+      nextValue = parseInt(value, 10);
+    this.setState({ [name]: nextValue });
   };
 
   handleSubmit = event => {

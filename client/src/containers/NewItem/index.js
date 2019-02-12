@@ -1,33 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import gql from 'graphql-tag';
-import { Mutation } from 'react-apollo';
-
+import graphqlClient from '../../graphqlClient';
 import Input from '../../components/Input/';
-
-const CREATE_ITEM = gql`
-  mutation CreateItem(
-    $name: String!
-    $price: Int!
-    $quantity: Int!
-    $purchased: Boolean!
-  ) {
-    createItem(
-      input: {
-        name: $name
-        price: $price
-        quantity: $quantity
-        purchased: $purchased
-      }
-    ) {
-      id
-      name
-      price
-      quantity
-      purchased
-    }
-  }
-`;
+import { CREATE_ITEM } from './queries';
 
 class Form extends Component {
   state = {
@@ -47,9 +22,7 @@ class Form extends Component {
 
   handleSubmit = event => {
     event.preventDefault();
-    this.props.createItem({
-      variables: { ...this.state }
-    });
+    this.props.executeQuery({ ...this.state });
   };
 
   render() {
@@ -116,15 +89,24 @@ const Success = ({ id, name, price, quantity, purchased }) => (
   </>
 );
 
-const NewItem = () => (
-  <Mutation mutation={CREATE_ITEM}>
-    {(createItem, { loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error) return <p>Error</p>;
-      if (data) return <Success {...data.createItem} />;
-      return <Form createItem={createItem} />;
-    }}
-  </Mutation>
-);
+class NewItem extends Component {
+  state = {
+    data: null
+  };
+
+  executeQuery = async variables => {
+    try {
+      const data = await graphqlClient.request(CREATE_ITEM, variables);
+      this.setState({ data });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  render() {
+    if (!this.state.data) return <Form executeQuery={this.executeQuery} />;
+    return <Success {...this.state.data.createItem} />;
+  }
+}
 
 export default NewItem;

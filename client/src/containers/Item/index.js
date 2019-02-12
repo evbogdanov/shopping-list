@@ -1,20 +1,8 @@
-import React from 'react';
-import { Query } from 'react-apollo';
-import gql from 'graphql-tag';
+import React, { Component } from 'react';
+import graphqlClient from '../../graphqlClient';
+import { GET_ITEM } from './queries';
 
-const GET_ITEM = gql`
-  query GetItem($id: ID!) {
-    item(id: $id) {
-      id
-      name
-      price
-      quantity
-      purchased
-    }
-  }
-`;
-
-const ItemDetails = ({ name, price, quantity, purchased }) => (
+const ItemDetails = ({ item: { name, price, quantity, purchased } }) => (
   <>
     <h1>{name}</h1>
     <p>Price: {price}</p>
@@ -23,18 +11,30 @@ const ItemDetails = ({ name, price, quantity, purchased }) => (
   </>
 );
 
-const Item = props => {
-  const id = props.match.params.id;
-  return (
-    <Query query={GET_ITEM} variables={{ id }}>
-      {({ loading, error, data }) => {
-        if (loading) return <p>Loading...</p>;
-        if (error) return <p>Error</p>;
-        if (!data.item) return <p>No such item</p>;
-        return <ItemDetails {...data.item} />;
-      }}
-    </Query>
-  );
-};
+class Item extends Component {
+  state = {
+    data: null
+  };
+
+  executeQuery = async variables => {
+    try {
+      const data = await graphqlClient.request(GET_ITEM, variables);
+      this.setState({ data });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    this.executeQuery({ id });
+  }
+
+  render() {
+    if (!this.state.data) return <p>Loading...</p>;
+    if (!this.state.data.item) return <p>No such item</p>;
+    return <ItemDetails item={this.state.data.item} />;
+  }
+}
 
 export default Item;

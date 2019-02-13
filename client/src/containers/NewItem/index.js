@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import graphqlClient from '../../graphqlClient';
+import Mutation from '../../graphql/Mutation';
 import Input from '../../components/Input/';
 import { CREATE_ITEM } from './queries';
 
@@ -22,7 +22,7 @@ class Form extends Component {
 
   handleSubmit = event => {
     event.preventDefault();
-    this.props.executeQuery({ ...this.state });
+    this.props.executeMutation({ ...this.state });
   };
 
   render() {
@@ -89,24 +89,17 @@ const Success = ({ id, name, price, quantity, purchased }) => (
   </>
 );
 
-class NewItem extends Component {
-  state = {
-    data: null
-  };
+const NewItem = ({ error, loading, data, executeMutation }) => {
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error</p>;
+  if (data) return <Success {...data.createItem} />;
+  return <Form executeMutation={executeMutation} />;
+};
 
-  executeQuery = async variables => {
-    try {
-      const data = await graphqlClient.request(CREATE_ITEM, variables);
-      this.setState({ data });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+const NewItemMutation = () => (
+  <Mutation mutation={CREATE_ITEM}>
+    <NewItem />
+  </Mutation>
+);
 
-  render() {
-    if (!this.state.data) return <Form executeQuery={this.executeQuery} />;
-    return <Success {...this.state.data.createItem} />;
-  }
-}
-
-export default NewItem;
+export default NewItemMutation;

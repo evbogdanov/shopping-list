@@ -14,6 +14,19 @@ import { GlobalStyle } from './styled';
 
 const client = new ApolloClient();
 
+// Turn off Apollo caching
+client.defaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'network-only'
+  },
+  query: {
+    fetchPolicy: 'network-only'
+  },
+  mutate: {
+    fetchPolicy: 'network-only'
+  }
+};
+
 class App extends Component {
   render() {
     return (
